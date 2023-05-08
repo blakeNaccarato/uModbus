@@ -16,8 +16,7 @@ def test_basic_route():
 
 def test_other_iterables():
     # Other iterable types should work, not just lists
-    rule = DataRule(endpoint,
-                    slave_ids=set([1]), function_codes=[1], addresses=[1])
+    rule = DataRule(endpoint, slave_ids={1}, function_codes=[1], addresses=[1])
     assert rule.match(slave_id=1, function_code=1, address=1)
 
 

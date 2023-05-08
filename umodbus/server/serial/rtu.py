@@ -22,12 +22,7 @@ def get_char_size(baudrate):
         value of 750us for the inter-character time-out (t 1.5) and a value of
         1.750ms for inter-frame delay (t 3.5)."
     """
-    if baudrate <= 19200:
-        # One frame is 11 bits.
-        return 11 / baudrate
-
-    # 750 us / 1.5 = 500 us or 0.0005 s.
-    return 0.0005
+    return 11 / baudrate if baudrate <= 19200 else 0.0005
 
 
 class RTUServer(AbstractSerialServer):

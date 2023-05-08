@@ -71,8 +71,7 @@ def validate_crc(msg):
     :param msg: Byte array with message with CRC.
     :raise: CRCError.
     """
-    if not struct.unpack('<H', get_crc(msg[:-2])) ==\
-            struct.unpack('<H', msg[-2:]):
+    if struct.unpack('<H', get_crc(msg[:-2])) != struct.unpack('<H', msg[-2:]):
         raise CRCError('CRC validation failed.')
 
 

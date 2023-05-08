@@ -111,7 +111,7 @@ def pdu_to_function_code_or_raise_error(resp_pdu):
     :return: Subclass of :class:`ModbusFunction` matching the response.
     :raises ModbusError: When response contains error code.
     """
-    function_code = struct.unpack('>B', resp_pdu[0:1])[0]
+    function_code = struct.unpack('>B', resp_pdu[:1])[0]
 
     if function_code not in function_code_to_function_map.keys():
         error_code = struct.unpack('>B', resp_pdu[1:2])[0]
@@ -341,11 +341,11 @@ class ReadCoils(ModbusFunction):
         fmt = '>' + ('B' * byte_count)
         bytes_ = struct.unpack(fmt, resp_pdu[2:])
 
-        data = list()
+        data = []
 
         for i, value in enumerate(bytes_):
             padding = 8 if (read_coils.quantity - (8 * i)) // 8 > 0 \
-                else read_coils.quantity % 8
+                    else read_coils.quantity % 8
 
             fmt = '{{0:0{padding}b}}'.format(padding=padding)
 
@@ -549,11 +549,11 @@ class ReadDiscreteInputs(ModbusFunction):
         fmt = '>' + ('B' * byte_count)
         bytes_ = struct.unpack(fmt, resp_pdu[2:])
 
-        data = list()
+        data = []
 
         for i, value in enumerate(bytes_):
             padding = 8 if (read_discrete_inputs.quantity - (8 * i)) // 8 > 0 \
-                else read_discrete_inputs.quantity % 8
+                    else read_discrete_inputs.quantity % 8
 
             fmt = '{{0:0{padding}b}}'.format(padding=padding)
 
@@ -998,10 +998,7 @@ class WriteSingleCoil(ModbusFunction):
 
     @property
     def value(self):
-        if self._value == 0xFF00:
-            return 1
-
-        return self._value
+        return 1 if self._value == 0xFF00 else self._value
 
     @value.setter
     def value(self, value):
@@ -1154,7 +1151,7 @@ class WriteSingleRegister(ModbusFunction):
         :raises: IllegalDataValueError when value isn't in range.
         """
         try:
-            struct.pack('>' + conf.TYPE_CHAR, value)
+            struct.pack(f'>{conf.TYPE_CHAR}', value)
         except struct.error:
             raise IllegalDataValueError
 
@@ -1170,8 +1167,9 @@ class WriteSingleRegister(ModbusFunction):
             # TODO Raise proper exception.
             raise Exception
 
-        return struct.pack('>BH' + conf.TYPE_CHAR, self.function_code,
-                           self.address, self.value)
+        return struct.pack(
+            f'>BH{conf.TYPE_CHAR}', self.function_code, self.address, self.value
+        )
 
     @classmethod
     def create_from_request_pdu(cls, pdu):
@@ -1180,8 +1178,9 @@ class WriteSingleRegister(ModbusFunction):
         :param pdu: A request PDU.
         :return: Instance of this class.
         """
-        _, address, value = \
-            struct.unpack('>BH' + conf.MULTI_BIT_VALUE_FORMAT_CHARACTER, pdu)
+        _, address, value = struct.unpack(
+            f'>BH{conf.MULTI_BIT_VALUE_FORMAT_CHARACTER}', pdu
+        )
 
         instance = cls()
         instance.address = address
@@ -1198,7 +1197,7 @@ class WriteSingleRegister(ModbusFunction):
         return 5
 
     def create_response_pdu(self):
-        fmt = '>BH' + conf.TYPE_CHAR
+        fmt = f'>BH{conf.TYPE_CHAR}'
         return struct.pack(fmt, self.function_code, self.address, self.value)
 
     @classmethod
@@ -1210,7 +1209,7 @@ class WriteSingleRegister(ModbusFunction):
         """
         write_single_register = cls()
 
-        address, value = struct.unpack('>H' + conf.TYPE_CHAR, resp_pdu[1:5])
+        address, value = struct.unpack(f'>H{conf.TYPE_CHAR}', resp_pdu[1:5])
 
         write_single_register.address = address
         write_single_register.data = value
@@ -1377,12 +1376,12 @@ class WriteMultipleCoils(ModbusFunction):
         :param pdu: A request PDU.
         """
         _, starting_address, quantity, byte_count = \
-            struct.unpack('>BHHB', pdu[:6])
+                struct.unpack('>BHHB', pdu[:6])
 
         fmt = '>' + (conf.SINGLE_BIT_VALUE_FORMAT_CHARACTER * byte_count)
         values = struct.unpack(fmt, pdu[6:])
 
-        res = list()
+        res = []
 
         for i, value in enumerate(values):
             padding = 8 if (quantity - (8 * i)) // 8 > 0 else quantity % 8
@@ -1512,7 +1511,7 @@ class WriteMultipleRegisters(ModbusFunction):
 
         for value in values:
             try:
-                struct.pack(">" + conf.MULTI_BIT_VALUE_FORMAT_CHARACTER, value)
+                struct.pack(f">{conf.MULTI_BIT_VALUE_FORMAT_CHARACTER}", value)
             except struct.error:
                 raise IllegalDataValueError
 

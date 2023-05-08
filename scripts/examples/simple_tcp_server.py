@@ -32,7 +32,7 @@ TCPServer.allow_reuse_address = True
 try:
     app = get_server(TCPServer, (host, port), RequestHandler)
 except PermissionError:
-    print("You don't have permission to bind on {}".format(args.bind))
+    print(f"You don't have permission to bind on {args.bind}")
     print("Hint: try with a different port (ex: --bind localhost:50200)")
     exit(1)
 

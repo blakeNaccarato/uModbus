@@ -81,9 +81,7 @@ class AbstractSerialServer(object):
         request_pdu = self.get_request_pdu(request_adu)
 
         response_pdu = self.execute_route(meta_data, request_pdu)
-        response_adu = self.create_response_adu(meta_data, response_pdu)
-
-        return response_adu
+        return self.create_response_adu(meta_data, response_pdu)
 
     def execute_route(self, meta_data, request_pdu):
         """ Execute configured route based on requests meta data and request

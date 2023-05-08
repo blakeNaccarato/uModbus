@@ -33,10 +33,7 @@ class Config(object):
 
     @property
     def TYPE_CHAR(self):
-        if self.SIGNED_VALUES:
-            return 'h'
-
-        return 'H'
+        return 'h' if self.SIGNED_VALUES else 'H'
 
     def _set_multi_bit_value_format_character(self):
         """ Set format character for multibit values.

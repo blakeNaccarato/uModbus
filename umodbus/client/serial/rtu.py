@@ -182,11 +182,7 @@ def parse_response_adu(resp_adu, req_adu=None):
     resp_pdu = resp_adu[1:-2]
     validate_crc(resp_adu)
 
-    req_pdu = None
-
-    if req_adu is not None:
-        req_pdu = req_adu[1:-2]
-
+    req_pdu = req_adu[1:-2] if req_adu is not None else None
     function = create_function_from_response_pdu(resp_pdu, req_pdu)
 
     return function.data
